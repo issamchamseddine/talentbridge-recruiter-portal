@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hiring desk - TalentBridge Remote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14232b; --paper:#f3f6f5; --surface:#ffffff; --line:#d6ddda; --muted:#5a6a6f;
+  --accent:#1d6b58; --accent-soft:#dcefe8;
+  --amber:#8f5b00; --amber-soft:#fbefd3; --red:#a13a2e; --red-soft:#f6dedb; --blue:#2a5a9c; --blue-soft:#dde8f6; --slate:#4a5a60; --slate-soft:#e6ebea;
+  --head:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Public Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ink:#e8efed; --paper:#0f1a1e; --surface:#16242a; --line:#2b3d44; --muted:#9db0b5;
+  --accent:#5cc3a5; --accent-soft:#17352e; --amber:#e6b35a; --amber-soft:#3a2d12; --red:#ee8f84; --red-soft:#3b1f1c; --blue:#8db6ee; --blue-soft:#1b2c44; --slate:#a8b9be; --slate-soft:#22333a;
+}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--body)}
+a{color:var(--accent);text-underline-offset:2px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.side{border-right:1px solid var(--line);padding:28px 20px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:28px;background:var(--surface)}
+.brand{font:700 21px/1.1 var(--head);letter-spacing:-.01em}
+.brand small{display:block;font:400 13px/1.4 var(--body);color:var(--muted);margin-top:6px;letter-spacing:0}
+nav{display:flex;flex-direction:column;gap:2px}
+nav button{all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-weight:500}
+nav button:hover{background:var(--slate-soft)}
+nav button[aria-current=page]{background:var(--ink);color:var(--paper)}
+nav .count{font-size:13px;color:var(--muted);font-weight:500}
+nav button[aria-current=page] .count{color:inherit;opacity:.8}
+nav .count.warn{color:var(--amber);font-weight:600}
+.side-foot{margin-top:auto;font-size:13px;color:var(--muted)}
+main{padding:34px 40px 60px;max-width:1240px;width:100%}
+.top{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:flex-end;margin-bottom:22px}
+h1{font:700 34px/1.05 var(--head);letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);margin:8px 0 0;max-width:60ch}
+.ribbon{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg{all:unset;cursor:pointer;padding:9px 16px;border-right:1px solid var(--line);text-align:left;min-width:92px}
+.seg:last-child{border-right:0}
+.seg:hover{background:var(--slate-soft)}
+.seg .n{display:block;font:700 22px/1.1 var(--head)}
+.seg .l{font-size:12.5px;color:var(--muted)}
+.seg.on .n{color:var(--accent)}
+.role{border-top:2px solid var(--ink);padding:22px 0 34px}
+.role-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.role h2{font:700 26px/1.1 var(--head);margin:0;letter-spacing:-.01em}
+.client{color:var(--muted);margin:4px 0 0}
+.req{margin:14px 0 6px;max-width:80ch}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;white-space:nowrap}
+.b-open,.b-Placed,.b-Replied{background:var(--accent-soft);color:var(--accent)}
+.b-pending_approval,.b-Shortlisted,.b-warn{background:var(--amber-soft);color:var(--amber)}
+.b-Approved,.b-Interview,.b-info{background:var(--blue-soft);color:var(--blue)}
+.b-Contacted,.b-rejected,.b-closed,.b-muted{background:var(--slate-soft);color:var(--slate)}
+.b-Rejected,.b-bad{background:var(--red-soft);color:var(--red)}
+details{margin:8px 0 14px}
+summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.jd{margin-top:10px;padding:14px 16px;border-left:3px solid var(--line);max-width:80ch;font-size:14.5px}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th{text-align:left;font-weight:600;font-size:13px;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--ink)}
+td{padding:12px 12px 12px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.name{min-width:128px}
+td.name b{display:block}
+td small,.muted{color:var(--muted);font-size:13px}
+.score{display:flex;align-items:center;gap:10px;font:700 18px var(--head);min-width:110px}
+.score i{flex:1;height:6px;border-radius:3px;background:var(--slate-soft);position:relative;overflow:hidden}
+.score i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--accent)}
+.why{max-width:42ch;font-size:14px}
+.lanes{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:0;border:1px solid var(--line);border-radius:10px;overflow-x:auto;background:var(--surface)}
+.lane{border-right:1px solid var(--line);padding:14px 12px;min-height:240px}
+.lane:last-child{border-right:0}
+.lane h3{font:700 15px var(--head);margin:0 0 12px;display:flex;justify-content:space-between}
+.lane h3 span{color:var(--muted);font-weight:500}
+.item{padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.item b{display:block}
+.item span{color:var(--muted);font-size:12.5px;display:block}
+.empty{color:var(--muted);padding:28px 0;max-width:60ch}
+.btn{font:600 14px var(--body);padding:7px 14px;border-radius:8px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--slate-soft)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.5;cursor:wait}
+.verdict{display:flex;gap:28px;align-items:center;flex-wrap:wrap;margin:6px 0 10px}
+.verdict .big{font:700 74px/1 var(--head);letter-spacing:-.03em}
+.verdict .big small{font-size:30px;color:var(--muted);font-weight:500}
+.ans{max-width:46ch;font-size:13.5px;white-space:pre-wrap}
+td details{margin:0}
+td summary{font-weight:500;font-size:14px}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:22px 24px;width:min(360px,92vw)}
+dialog::backdrop{background:rgba(10,20,24,.45)}
+dialog input{width:100%;padding:9px 10px;margin:8px 0 16px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--paper);color:var(--ink)}
+dialog menu{display:flex;gap:10px;justify-content:flex-end;margin:0;padding:0}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:8px;font-weight:500;z-index:9}
+.err{background:var(--red-soft);color:var(--red);padding:14px 16px;border-radius:8px}
+h3.sec{font:700 18px var(--head);margin:34px 0 4px}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:14px 16px;gap:12px}
+  nav{flex-direction:row;flex-wrap:wrap}.side-foot{display:none}
+  main{padding:22px 16px 50px}.ribbon{overflow-x:auto;max-width:100%}
+  table,thead,tbody,tr,td,th{display:block}thead{display:none}
+  tr{border-bottom:1px solid var(--line);padding:10px 0}td{border:0;padding:4px 0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">Hiring desk<small>TalentBridge Remote</small></div>
+    <nav id="nav" aria-label="Sections"></nav>
+    <div class="side-foot">Nothing reaches a candidate or a client until a recruiter approves it in Slack.</div>
+  </aside>
+  <main>
+    <div class="top">
+      <div><h1 id="title">Hiring desk</h1><p class="sub" id="sub"></p></div>
+      <div class="ribbon" id="ribbon" aria-label="Candidates per pipeline stage"></div>
+    </div>
+    <section id="view" aria-live="polite"><p class="empty">Loading...</p></section>
+  </main>
+</div>
+<dialog id="dlg"><form method="dialog">
+  <label for="code"><b>Access code</b><br><span class="muted">Needed for recruiter actions.</span></label>
+  <input id="code" type="password" autocomplete="off">
+  <menu><button class="btn" value="cancel">Cancel</button><button class="btn primary" value="ok">Confirm</button></menu>
+</form></dialog>
+<script>
+const STAGES = ['Shortlisted','Approved','Contacted','Replied','Interview','Placed','Rejected'];
+let D = null, view = 'roles';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cvUrl = (f) => D.cv_base + encodeURIComponent(f).replace(/\(/g, '%28').replace(/\)/g, '%29');
+const md = (t) => esc(t).replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+const date = (x) => x ? new Date(x).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+const plainSlack = (t) => String(t || '').replace(/<[^>|]+\|([^>]+)>/g, '$1').replace(/[`*_]/g, '').replace(/:[a-z_]+:/g, '').replace(/ {2,}/g, ' ').trim();
+const STATUS = { open: 'Open', pending_approval: 'Waiting for approval in Slack', rejected: 'Rejected', closed: 'Closed' };
+
+function criteria(r) {
+  const q = r || {};
+  const parts = [...(q.musts || []).map(m => m.label + (m.min_years ? ' ' + m.min_years + '+ years' : '')),
+    ...(q.languages || []).map(l => l.language + ' (' + l.min_level + ' or better)')];
+  return parts.length ? parts.join(', ') : 'No requirements saved';
+}
+function sentCount(id) { return D.outreach.filter(o => o.shortlist_id === id && o.status === 'sent').length; }
+function outreachText(s) {
+  const n = sentCount(s.id);
+  if (s.stage === 'Replied') return 'Replied, sequence stopped';
+  if (s.stage === 'Shortlisted') return 'Waiting for your approval';
+  return n ? n + ' of 3 emails sent' : 'Queued';
+}
+function cvCell(s) {
+  const c = s.rc_candidates || {};
+  const scan = c.read_method === 'ocr' ? (c.needs_review ? '<br><span class="badge b-warn">Scan, please check</span>' : '<br><span class="badge b-open">Scan, checked</span>') : '';
+  return '<a href="' + esc(cvUrl(s.cv_file)) + '" target="_blank" rel="noopener">Open CV</a><br><small>' + esc(s.cv_file) + '</small>' + scan;
+}
+
+function rolesView() {
+  if (!D.roles.length) return '<p class="empty">No roles yet. Paste a client call transcript in the #new-roles Slack channel and the job description will appear here.</p>';
+  return D.roles.map(r => {
+    const sl = D.shortlists.filter(s => s.role_id === r.id);
+    const table = sl.length ? '<table><thead><tr><th>Candidate</th><th>Fit</th><th>Why</th><th>Stage</th><th>Outreach</th><th>CV</th></tr></thead><tbody>' +
+      sl.map(s => { const c = s.rc_candidates || {}; const why = String(s.reason || '').split(' | ');
+        return '<tr><td class="name"><b>' + esc(c.full_name) + '</b><small>' + esc([c.city, c.country].filter(Boolean).join(', ')) + '</small></td>' +
+          '<td><div class="score"><span>' + s.score + '</span><i style="--w:' + Math.min(100, s.score) + '%"></i></div></td>' +
+          '<td class="why">' + esc(why[0]) + '<br><span class="muted">' + esc(why[1] || '') + '</span></td>' +
+          '<td><span class="badge b-' + s.stage + '">' + s.stage + '</span></td><td class="muted">' + outreachText(s) + '</td><td>' + cvCell(s) + '</td></tr>'; }).join('') + '</tbody></table>'
+      : '<p class="empty">' + (r.status === 'pending_approval' ? 'Approve the job description in Slack and the shortlist will be created.' : 'No shortlist for this role.') + '</p>';
+    return '<article class="role"><div class="role-head"><div><h2>' + esc(r.title) + '</h2><p class="client">' + esc([r.client_company, r.client_name].filter(Boolean).join(', ')) +
+      ' &nbsp;|&nbsp; created ' + date(r.created_at) + '</p></div><span class="badge b-' + r.status + '">' + (STATUS[r.status] || r.status) + '</span></div>' +
+      '<p class="req"><strong>Searching for:</strong> ' + esc(criteria(r.requirements)) + '</p>' +
+      '<details><summary>Job description</summary><div class="jd">' + md(r.jd_markdown) + '</div></details>' + table + '</article>';
+  }).join('');
+}
+
+function pipelineView() {
+  const roleName = Object.fromEntries(D.roles.map(r => [r.id, r.title]));
+  return '<div class="lanes">' + STAGES.map(st => {
+    const items = D.shortlists.filter(s => s.stage === st);
+    return '<section class="lane"><h3>' + st + '<span>' + items.length + '</span></h3>' + (items.length ? items.map(s => '<div class="item"><b>' + esc((s.rc_candidates || {}).full_name) +
+      '</b><span>' + esc(roleName[s.role_id] || '') + '</span><span>Fit ' + s.score + ' | ' + outreachText(s) + '</span></div>').join('') : '<span class="muted">Nobody here yet</span>') + '</section>';
+  }).join('') + '</div><p class="muted" style="margin-top:12px">Stages: a candidate is Shortlisted by the search, Approved by a recruiter in Slack, Contacted when the first email is sent, and Replied when they answer (the email sequence then stops). Interview, Placed and Rejected are set by the recruiter.</p>';
+}
+
+function flaggedView() {
+  const rows = D.flagged.map(f => {
+    const bad = f.status === 'unreadable';
+    const name = (f.rc_candidates || {}).full_name;
+    const file = bad ? esc(f.file_name) + '<br><small>Not stored: a new file is needed</small>' : '<a href="' + esc(cvUrl(f.file_name)) + '" target="_blank" rel="noopener">' + esc(f.file_name) + '</a>';
+    const action = (!bad && f.candidate_id) ? '<button class="btn primary" data-act="check" data-id="' + f.candidate_id + '">Mark as checked</button>' : '<span class="muted">Ask for a new file</span>';
+    return '<tr><td>' + file + '</td><td><span class="badge ' + (bad ? 'b-bad' : 'b-warn') + '">' + (bad ? 'Could not be read' : 'Scan, read by OCR') + '</span></td><td>' + esc(name || '-') + '</td><td class="why">' + esc(f.note || '') + '</td><td>' + action + '</td></tr>';
+  }).join('');
+  const done = D.checked_scans.map(c => '<tr><td><a href="' + esc(cvUrl(c.source_file)) + '" target="_blank" rel="noopener">' + esc(c.source_file) + '</a></td><td>' + esc(c.full_name) + '</td><td class="why">' + esc(c.review_reason || '') + '</td><td><button class="btn" data-act="flag" data-id="' + c.id + '">Flag again</button></td></tr>').join('');
+  return (rows ? '<table><thead><tr><th>CV file</th><th>Problem</th><th>Candidate</th><th>Details</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
+    : '<p class="empty">No CVs need attention. Every file was read normally, or has been checked by a recruiter.</p>') +
+    '<p class="muted" style="margin-top:14px">A scanned CV has no text inside, only a picture, so its text comes from AI vision and can contain mistakes. It stays flagged in search answers and shortlists until a recruiter opens it, compares it with the extracted facts and marks it as checked. Files that cannot be read at all are never skipped silently: they are listed here and reported in Slack.</p>' +
+    (done ? '<h3 class="sec">Scans already checked</h3><table><thead><tr><th>CV file</th><th>Candidate</th><th>Details</th><th></th></tr></thead><tbody>' + done + '</tbody></table>' : '');
+}
+
+function answerOf(t) {
+  const e = t.expected || {};
+  if (e.check === 'none') return 'Nobody. The bot must say there is no suitable candidate.';
+  if (e.check === 'fact') return '3.5 years, taken from ' + (e.files || [])[0] + ' (the newest CV).';
+  if (e.check === 'flag') return 'It must list ' + (e.files || [])[0] + ' as needing review.';
+  if (e.check === 'top5_subset') return 'Any 5 of the ' + (e.people || []).length + ' who qualify: ' + e.people.join(', ') + '.';
+  return (e.people || []).join(', ');
+}
+function testView() {
+  if (!D.tests.length) return '<p class="empty">No test run yet. Run the RC-4 Test Runner workflow in n8n and the results appear here.</p>';
+  const score = D.tests.filter(t => t.passed).length;
+  return '<div class="verdict"><div class="big">' + score + '<small>/' + D.tests.length + '</small></div><div><b>The bot answered ' + score + ' of ' + D.tests.length + ' test questions correctly.</b><br><span class="muted">Last run ' +
+    new Date(D.tests[0].created_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) + '. The real search engine answered each question; plain code compared the answer with the right one.</span></div></div>' +
+    '<table><thead><tr><th>#</th><th>Question</th><th>Right answer</th><th>Bot answer</th><th>Result</th></tr></thead><tbody>' +
+    D.tests.map(t => '<tr><td>' + t.question_no + '</td><td>' + esc(t.question) + '</td><td class="why">' + esc(answerOf(t)) + '</td><td><details><summary>' + esc(plainSlack(t.bot_answer).split('\n').find(x => x.trim()) || 'No answer').slice(0, 60) + '</summary><div class="ans">' + esc(plainSlack(t.bot_answer)) + '</div></details></td><td><span class="badge ' + (t.passed ? 'b-open' : 'b-bad') + '">' + (t.passed ? 'Correct' : 'Wrong') + '</span><br><small class="muted">' + esc(t.details) + '</small></td></tr>').join('') + '</tbody></table>';
+}
+
+function render() {
+  const counts = Object.fromEntries(STAGES.map(s => [s, D.shortlists.filter(x => x.stage === s).length]));
+  const open = D.roles.filter(r => r.status === 'open').length;
+  const passed = D.tests.filter(t => t.passed).length;
+  const nav = [['roles', 'Roles', open + ' open', ''], ['pipeline', 'Pipeline', D.shortlists.length, ''], ['flagged', 'Flagged CVs', D.flagged.length, D.flagged.length ? 'warn' : ''], ['test', 'Bot test', D.tests.length ? passed + '/' + D.tests.length : '-', '']];
+  $('#nav').innerHTML = nav.map(n => '<button data-go="' + n[0] + '"' + (view === n[0] ? ' aria-current="page"' : '') + '>' + n[1] + '<span class="count ' + n[3] + '">' + n[2] + '</span></button>').join('');
+  $('#ribbon').innerHTML = STAGES.map(s => '<button class="seg' + (counts[s] ? ' on' : '') + '" data-go="pipeline"><span class="n">' + counts[s] + '</span><span class="l">' + s + '</span></button>').join('');
+  const T = { roles: ['Open roles and their shortlists', D.candidates_total + ' CVs are searchable. Each role below was written from a client call and approved by a recruiter; the shortlist is the best match from the CV database.', rolesView],
+    pipeline: ['Candidates by pipeline stage', 'Where every shortlisted candidate stands right now.', pipelineView],
+    flagged: ['CVs that need attention', 'Scanned or unreadable files are flagged here and never skipped silently.', flaggedView],
+    test: ['Bot test', 'Ten questions with known right answers, asked to the bot exactly as a recruiter would.', testView] }[view];
+  $('#title').textContent = T[0]; $('#sub').textContent = T[1]; $('#view').innerHTML = T[2]();
+}
+
+function toast(t) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 2600); }
+function askCode() {
+  const saved = sessionStorage.getItem('rc_code'); if (saved) return Promise.resolve(saved);
+  const dlg = $('#dlg'); $('#code').value = '';
+  return new Promise(res => { dlg.addEventListener('close', () => res(dlg.returnValue === 'ok' ? $('#code').value : null), { once: true }); dlg.showModal(); });
+}
+async function act(id, action, btn) {
+  const code = await askCode(); if (!code) return;
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidate_id: id, action, code }) });
+    const j = await r.json();
+    if (r.status === 401) { sessionStorage.removeItem('rc_code'); toast('Wrong access code'); btn.disabled = false; return; }
+    if (!r.ok) throw new Error(j.error);
+    sessionStorage.setItem('rc_code', code);
+    toast(action === 'check' ? 'Marked as checked' : 'Flagged for review again');
+    await load();
+  } catch (e) { toast('Could not save: ' + e.message); btn.disabled = false; }
+}
+document.addEventListener('click', (e) => {
+  const go = e.target.closest('[data-go]'); if (go && D) { view = go.dataset.go; render(); window.scrollTo(0, 0); return; }
+  const b = e.target.closest('[data-act]'); if (b) act(Number(b.dataset.id), b.dataset.act, b);
+});
+async function load() {
+  try {
+    const r = await fetch('/api/data'); const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    D = j; render();
+  } catch (e) { $('#view').innerHTML = '<p class="err">The portal could not load its data: ' + esc(e.message) + '</p>'; }
+}
+load();
+</script>
+</body>
+</html>
