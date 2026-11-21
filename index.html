@@ -82,6 +82,9 @@ td small,.muted{color:var(--muted);font-size:13px}
 .item{padding:9px 0;border-top:1px solid var(--line);font-size:14px}
 .item b{display:block}
 .item span{color:var(--muted);font-size:12.5px;display:block}
+.ghlbar{display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:14px;font-size:14px}
+.ghlbar span{max-width:78ch}
+.ghl-yes{color:var(--accent);font-weight:600}.ghl-no{color:var(--amber);font-weight:600}
 .empty{color:var(--muted);padding:28px 0;max-width:60ch}
 .btn{font:600 14px var(--body);padding:7px 14px;border-radius:8px;border:1px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
 .btn:hover{background:var(--slate-soft)}
@@ -149,6 +152,29 @@ function criteria(r) {
     ...(q.languages || []).map(l => l.language + ' (' + l.min_level + ' or better)')];
   return parts.length ? parts.join(', ') : 'No requirements saved';
 }
+function ghlOf(s) {
+  const g = D.ghl || {}; const e = String(((s.rc_candidates || {}).email) || '').toLowerCase();
+  if (!g.available) return '';
+  if (s.stage === 'Shortlisted') return '';
+  const hit = g.byEmail && g.byEmail[e];
+  return hit ? '<br><small class="ghl-yes">In GHL: ' + esc(hit.stage) + '</small>' : '<br><small class="ghl-no">Not imported into GHL yet</small>';
+}
+function ghlBar() {
+  const g = D.ghl || {};
+  const stat = g.available ? '<b>GoHighLevel connected:</b> pipeline "' + esc(g.pipeline) + '" holds ' + g.count + ' candidate card' + (g.count === 1 ? '' : 's') + '.' : '<b>GoHighLevel:</b> not connected yet (' + esc(g.reason || 'no information') + ').';
+  return '<div class="ghlbar"><span>' + stat + ' The course token is read-only, so approved candidates are added with GHL\'s own CSV import.</span><button class="btn primary" data-csv="1">Download candidates for GHL (CSV)</button></div>';
+}
+function downloadCsv() {
+  const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const roleName = Object.fromEntries(D.roles.map(r => [r.id, r.title]));
+  const rows = D.shortlists.filter(s => s.stage !== 'Shortlisted');
+  const head = ['First Name', 'Last Name', 'Email', 'Phone', 'Opportunity Name', 'Pipeline', 'Stage', 'Status', 'Lead Value', 'Source', 'Tags'];
+  const lines = rows.map(s => { const c = s.rc_candidates || {}; const parts = String(c.full_name || '').split(' '); const first = parts.shift(); const last = parts.join(' ');
+    return [first, last, c.email, c.phone, (c.full_name || '') + ' - ' + (roleName[s.role_id] || ''), 'IC - Candidate Pipeline', s.stage, s.stage === 'Placed' ? 'won' : (s.stage === 'Rejected' ? 'lost' : 'open'), 0, 'TalentBridge copilot', 'rc-demo'].map(q).join(','); });
+  const blob = new Blob(['\ufeff' + [head.map(q).join(',')].concat(lines).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ghl-candidates.csv'; document.body.appendChild(a); a.click(); a.remove();
+  toast(rows.length ? rows.length + ' candidate' + (rows.length === 1 ? '' : 's') + ' exported' : 'Nobody has been approved yet');
+}
 function sentCount(id) { return D.outreach.filter(o => o.shortlist_id === id && o.status === 'sent').length; }
 function outreachText(s) {
   const n = sentCount(s.id);
@@ -171,7 +197,7 @@ function rolesView() {
         return '<tr><td class="name"><b>' + esc(c.full_name) + '</b><small>' + esc([c.city, c.country].filter(Boolean).join(', ')) + '</small></td>' +
           '<td><div class="score"><span>' + s.score + '</span><i style="--w:' + Math.min(100, s.score) + '%"></i></div></td>' +
           '<td class="why">' + esc(why[0]) + '<br><span class="muted">' + esc(why[1] || '') + '</span></td>' +
-          '<td><span class="badge b-' + s.stage + '">' + s.stage + '</span></td><td class="muted">' + outreachText(s) + '</td><td>' + cvCell(s) + '</td></tr>'; }).join('') + '</tbody></table>'
+          '<td><span class="badge b-' + s.stage + '">' + s.stage + '</span>' + ghlOf(s) + '</td><td class="muted">' + outreachText(s) + '</td><td>' + cvCell(s) + '</td></tr>'; }).join('') + '</tbody></table>'
       : '<p class="empty">' + (r.status === 'pending_approval' ? 'Approve the job description in Slack and the shortlist will be created.' : 'No shortlist for this role.') + '</p>';
     return '<article class="role"><div class="role-head"><div><h2>' + esc(r.title) + '</h2><p class="client">' + esc([r.client_company, r.client_name].filter(Boolean).join(', ')) +
       ' &nbsp;|&nbsp; created ' + date(r.created_at) + '</p></div><span class="badge b-' + r.status + '">' + (STATUS[r.status] || r.status) + '</span></div>' +
@@ -182,10 +208,10 @@ function rolesView() {
 
 function pipelineView() {
   const roleName = Object.fromEntries(D.roles.map(r => [r.id, r.title]));
-  return '<div class="lanes">' + STAGES.map(st => {
+  return ghlBar() + '<div class="lanes">' + STAGES.map(st => {
     const items = D.shortlists.filter(s => s.stage === st);
     return '<section class="lane"><h3>' + st + '<span>' + items.length + '</span></h3>' + (items.length ? items.map(s => '<div class="item"><b>' + esc((s.rc_candidates || {}).full_name) +
-      '</b><span>' + esc(roleName[s.role_id] || '') + '</span><span>Fit ' + s.score + ' | ' + outreachText(s) + '</span></div>').join('') : '<span class="muted">Nobody here yet</span>') + '</section>';
+      '</b><span>' + esc(roleName[s.role_id] || '') + '</span><span>Fit ' + s.score + ' | ' + outreachText(s) + '</span>' + ghlOf(s).replace('<br>', '') + '</div>').join('') : '<span class="muted">Nobody here yet</span>') + '</section>';
   }).join('') + '</div><p class="muted" style="margin-top:12px">Stages: a candidate is Shortlisted by the search, Approved by a recruiter in Slack, Contacted when the first email is sent, and Replied when they answer (the email sequence then stops). Interview, Placed and Rejected are set by the recruiter.</p>';
 }
 
@@ -256,6 +282,7 @@ async function act(id, action, btn) {
 }
 document.addEventListener('click', (e) => {
   const go = e.target.closest('[data-go]'); if (go && D) { view = go.dataset.go; render(); window.scrollTo(0, 0); return; }
+  if (e.target.closest('[data-csv]') && D) { downloadCsv(); return; }
   const b = e.target.closest('[data-act]'); if (b) act(Number(b.dataset.id), b.dataset.act, b);
 });
 const POLL = Number(new URLSearchParams(location.search).get('poll')) || 8000;
