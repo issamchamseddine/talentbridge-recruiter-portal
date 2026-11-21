@@ -34,7 +34,11 @@ nav button[aria-current=page]{background:var(--ink);color:var(--paper)}
 nav .count{font-size:13px;color:var(--muted);font-weight:500}
 nav button[aria-current=page] .count{color:inherit;opacity:.8}
 nav .count.warn{color:var(--amber);font-weight:600}
-.side-foot{margin-top:auto;font-size:13px;color:var(--muted)}
+.side-foot{font-size:13px;color:var(--muted)}
+.live{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.live .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+.live.off .dot{background:var(--amber);animation:none}
+@keyframes pulse{50%{opacity:.35}}
 main{padding:34px 40px 60px;max-width:1240px;width:100%}
 .top{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:flex-end;margin-bottom:22px}
 h1{font:700 34px/1.05 var(--head);letter-spacing:-.02em;margin:0}
@@ -112,6 +116,7 @@ h3.sec{font:700 18px var(--head);margin:34px 0 4px}
   <aside class="side">
     <div class="brand">Hiring desk<small>TalentBridge Remote</small></div>
     <nav id="nav" aria-label="Sections"></nav>
+    <div class="live" aria-live="off"><span class="dot"></span><span id="stamp">Connecting...</span></div>
     <div class="side-foot">Nothing reaches a candidate or a client until a recruiter approves it in Slack.</div>
   </aside>
   <main>
@@ -171,7 +176,7 @@ function rolesView() {
     return '<article class="role"><div class="role-head"><div><h2>' + esc(r.title) + '</h2><p class="client">' + esc([r.client_company, r.client_name].filter(Boolean).join(', ')) +
       ' &nbsp;|&nbsp; created ' + date(r.created_at) + '</p></div><span class="badge b-' + r.status + '">' + (STATUS[r.status] || r.status) + '</span></div>' +
       '<p class="req"><strong>Searching for:</strong> ' + esc(criteria(r.requirements)) + '</p>' +
-      '<details><summary>Job description</summary><div class="jd">' + md(r.jd_markdown) + '</div></details>' + table + '</article>';
+      '<details data-k="jd-' + r.id + '"><summary>Job description</summary><div class="jd">' + md(r.jd_markdown) + '</div></details>' + table + '</article>';
   }).join('');
 }
 
@@ -188,7 +193,7 @@ function flaggedView() {
   const rows = D.flagged.map(f => {
     const bad = f.status === 'unreadable';
     const name = (f.rc_candidates || {}).full_name;
-    const file = bad ? esc(f.file_name) + '<br><small>Not stored: a new file is needed</small>' : '<a href="' + esc(cvUrl(f.file_name)) + '" target="_blank" rel="noopener">' + esc(f.file_name) + '</a>';
+    const file = '<a href="' + esc(cvUrl(f.file_name)) + '" target="_blank" rel="noopener">' + esc(f.file_name) + '</a>' + (bad ? '<br><small>Open the file to see what is wrong</small>' : '');
     const action = (!bad && f.candidate_id) ? '<button class="btn primary" data-act="check" data-id="' + f.candidate_id + '">Mark as checked</button>' : '<span class="muted">Ask for a new file</span>';
     return '<tr><td>' + file + '</td><td><span class="badge ' + (bad ? 'b-bad' : 'b-warn') + '">' + (bad ? 'Could not be read' : 'Scan, read by OCR') + '</span></td><td>' + esc(name || '-') + '</td><td class="why">' + esc(f.note || '') + '</td><td>' + action + '</td></tr>';
   }).join('');
@@ -213,7 +218,7 @@ function testView() {
   return '<div class="verdict"><div class="big">' + score + '<small>/' + D.tests.length + '</small></div><div><b>The bot answered ' + score + ' of ' + D.tests.length + ' test questions correctly.</b><br><span class="muted">Last run ' +
     new Date(D.tests[0].created_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) + '. The real search engine answered each question; plain code compared the answer with the right one.</span></div></div>' +
     '<table><thead><tr><th>#</th><th>Question</th><th>Right answer</th><th>Bot answer</th><th>Result</th></tr></thead><tbody>' +
-    D.tests.map(t => '<tr><td>' + t.question_no + '</td><td>' + esc(t.question) + '</td><td class="why">' + esc(answerOf(t)) + '</td><td><details><summary>' + esc(plainSlack(t.bot_answer).split('\n').find(x => x.trim()) || 'No answer').slice(0, 60) + '</summary><div class="ans">' + esc(plainSlack(t.bot_answer)) + '</div></details></td><td><span class="badge ' + (t.passed ? 'b-open' : 'b-bad') + '">' + (t.passed ? 'Correct' : 'Wrong') + '</span><br><small class="muted">' + esc(t.details) + '</small></td></tr>').join('') + '</tbody></table>';
+    D.tests.map(t => '<tr><td>' + t.question_no + '</td><td>' + esc(t.question) + '</td><td class="why">' + esc(answerOf(t)) + '</td><td><details data-k="t-' + t.question_no + '"><summary>' + esc(plainSlack(t.bot_answer).split('\n').find(x => x.trim()) || 'No answer').slice(0, 60) + '</summary><div class="ans">' + esc(plainSlack(t.bot_answer)) + '</div></details></td><td><span class="badge ' + (t.passed ? 'b-open' : 'b-bad') + '">' + (t.passed ? 'Correct' : 'Wrong') + '</span><br><small class="muted">' + esc(t.details) + '</small></td></tr>').join('') + '</tbody></table>';
 }
 
 function render() {
@@ -246,21 +251,39 @@ async function act(id, action, btn) {
     if (!r.ok) throw new Error(j.error);
     sessionStorage.setItem('rc_code', code);
     toast(action === 'check' ? 'Marked as checked' : 'Flagged for review again');
-    await load();
+    await load(false);
   } catch (e) { toast('Could not save: ' + e.message); btn.disabled = false; }
 }
 document.addEventListener('click', (e) => {
   const go = e.target.closest('[data-go]'); if (go && D) { view = go.dataset.go; render(); window.scrollTo(0, 0); return; }
   const b = e.target.closest('[data-act]'); if (b) act(Number(b.dataset.id), b.dataset.act, b);
 });
-async function load() {
-  try {
-    const r = await fetch('/api/data'); const j = await r.json();
-    if (!r.ok) throw new Error(j.error || r.status);
-    D = j; render();
-  } catch (e) { $('#view').innerHTML = '<p class="err">The portal could not load its data: ' + esc(e.message) + '</p>'; }
+const POLL = Number(new URLSearchParams(location.search).get('poll')) || 8000;
+let lastHash = '';
+function stamp(ok) {
+  const el = $('#stamp'); if (!el) return;
+  el.textContent = ok ? 'Live, updated ' + new Date().toLocaleTimeString('en-GB') : 'Connection lost, retrying...';
+  el.parentElement.classList.toggle('off', !ok);
 }
-load();
+async function load(silent) {
+  try {
+    const r = await fetch('/api/data', { cache: 'no-store' }); const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    stamp(true);
+    const h = JSON.stringify(j);
+    if (silent && h === lastHash) return;               // nothing changed: do not touch the page
+    lastHash = h; D = j;
+    const open = [...document.querySelectorAll('#view details[open]')].map(d => d.dataset.k);
+    render();
+    document.querySelectorAll('#view details').forEach(d => { if (open.includes(d.dataset.k)) d.open = true; });
+  } catch (e) {
+    if (!D) $('#view').innerHTML = '<p class="err">The portal could not load its data: ' + esc(e.message) + '</p>';
+    stamp(false);
+  }
+}
+setInterval(() => { if (!document.hidden) load(true); }, POLL);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(true); });
+load(false);
 </script>
 </body>
 </html>
